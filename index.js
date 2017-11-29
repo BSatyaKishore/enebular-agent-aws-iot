@@ -142,6 +142,24 @@ function handleFlowsStateChange(flows, timestamp) {
   console.log('* received flows definition => ', flows);
   fs.writeFileSync('./.node-red/flows.json', flows, 'utf-8');
   updateThingState({ flows: flows });
+  // Kill the processes that use port 3610 first.
+  exec('bash stop.sh 3610', (error, stdout, stderr) => {
+    if (error) {
+      console.error(`exec error: ${error}`);
+      return;
+    }
+    console.log(`stdout: ${stdout}`);
+    console.log(`stderr: ${stderr}`);
+  });
+  // Start the flow.json 
+  exec('node-red ./.node-red/flows.json -p 3610', (error, stdout, stderr) => {
+    if (error) {
+      console.error(`exec error: ${error}`);
+      return;
+    }
+    console.log(`stdout: ${stdout}`);
+    console.log(`stderr: ${stderr}`);
+  });
 }
 
 function handleCredsStateChange(creds, timestamp) {
